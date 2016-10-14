@@ -5,6 +5,50 @@
 
 #include <SFML/Graphics.hpp>
 
+float modor(const sf::Vector2f& reimu)
+{
+    return reimu.x*reimu.x + reimu.y*reimu.y;
+}
+
+class complex
+{
+    sf::Vector2f n_reimu;
+
+    float n_modu;
+
+    void modulize()
+    {
+        n_modu = modor(n_reimu);
+    }
+
+public:
+
+    sf::Vector2f get_vect()
+    {
+        return n_reimu;
+    }
+
+    void adding(complex& comp)
+    {
+        n_reimu = n_reimu + comp.get_vect();
+    }
+
+    complex(const sf::Vector2f& reimu)
+        : n_reimu(reimu), n_modu(modor(n_reimu))
+    {
+    }
+
+    ~complex()
+    {
+    }
+
+};
+
+complex adder(const complex& comp_1, const complex& comp_2)
+{
+
+}
+
 int main()
 {
     const float win_x{300.0f};
