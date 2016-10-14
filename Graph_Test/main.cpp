@@ -21,6 +21,11 @@ class complex
         n_modu = modor(n_reimu);
     }
 
+    void recomp(const sf::Vector2f& reimu)
+    {
+        n_reimu = reimu;
+    }
+
 public:
 
     sf::Vector2f get_vect()
@@ -28,9 +33,26 @@ public:
         return n_reimu;
     }
 
-    void adding(complex& comp)
+    void adding(const complex& comp)
     {
-        n_reimu = n_reimu + comp.get_vect();
+        complex temp{comp};
+
+        n_reimu = n_reimu + temp.get_vect();
+    }
+
+    void subbing(const complex& comp)
+    {
+        complex temp{comp};
+
+        n_reimu = n_reimu - temp.get_vect();
+    }
+
+    void multing(const complex& comp)
+    {
+        complex temp{comp};
+
+        recomp(sf::Vector2f(get_vect().x*temp.get_vect().x - get_vect().y*temp.get_vect().y,
+                            get_vect().x*temp.get_vect().y + get_vect().y*temp.get_vect().x));
     }
 
     complex(const sf::Vector2f& reimu)
@@ -46,7 +68,35 @@ public:
 
 complex adder(const complex& comp_1, const complex& comp_2)
 {
+    complex comp_3{comp_1};
 
+    complex comp_4{comp_2};
+
+    comp_3.adding(comp_4);
+
+    return comp_3;
+}
+
+complex subber(const complex& comp_1, const complex& comp_2)
+{
+    complex comp_3{comp_1};
+
+    complex comp_4{comp_2};
+
+    comp_3.subbing(comp_4);
+
+    return comp_3;
+}
+
+complex multer(const complex& comp_1, const complex& comp_2)
+{
+    complex comp_3{comp_1};
+
+    complex comp_4{comp_2};
+
+    comp_3.multing(comp_4);
+
+    return comp_3;
 }
 
 int main()
