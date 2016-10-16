@@ -2,6 +2,7 @@
 #include <string>
 #include <cassert>
 #include <vector>
+#include <cmath>
 
 #include <SFML/Graphics.hpp>
 
@@ -94,10 +95,12 @@ void fractalize(complex& comp)
     comp.addinit();
 }
 
-void fractionize(sf::Vector2f& current, const sf::Vector2f init)
+void fractionize(sf::Vector2f& current, const sf::Vector2f& init)
 {
-    current = sf::Vector2f {current.x*current.x -current.y*current.y + init.x,
-                      2*current.x*current.y + init.y};
+    const sf::Vector2f temp{current.x*current.x - current.y*current.y + init.x,
+                            2*current.x*current.y + init.y};
+
+    current = temp;
 }
 
 float floater(const int inter)
@@ -110,8 +113,8 @@ int main()
     const float win_x{800.0f};
     const float win_y{800.0f};
 
-    const int side{400};
-    const float sidef{1.0f*floater(side)};
+    const int side{800};
+    const float sidef{0.25f*floater(side)};
 
     const int size_x{2*side};
     const int size_y{2*side};
@@ -144,18 +147,29 @@ int main()
 
             const sf::Vector2f init{floater(count_x - side)/sidef, floater(count_y - side)/sidef};
 
-            sf::Vector2f current{init};
-
-            for (int count_1{0}; count_1 < iters; ++count_1)
+            if (count_y == 0)
             {
-                // fractalize(comp);
-
-                fractionize(current, init);
+                std::cout << init.x << " : " << init.y << "\n";
             }
 
-            if (modor(current) <= thresh)
+
+
+            sf::Vector2f current{init};
+
+            int iterations{0};
+
+            while (iterations < 255 && false)
             {
-                mandel = 255;
+
+                fractionize(current, init);
+
+                ++iterations;
+
+                if (modor(current) > 2.0f)
+                {
+                    mandel = iterations;
+                    iterations = 255;
+                }
             }
 
             pixels[count_c*rgba] = mandel;
