@@ -7,11 +7,13 @@
 
 float modor(const sf::Vector2f& reimu)
 {
-    return reimu.x*reimu.x + reimu.y*reimu.y;
+    return sqrt(reimu.x*reimu.x + reimu.y*reimu.y);
 }
 
 class complex
 {
+    const sf::Vector2f n_init;
+
     sf::Vector2f n_reimu;
 
     float n_modu;
@@ -21,9 +23,10 @@ class complex
         n_modu = modor(n_reimu);
     }
 
-    void recomp(const sf::Vector2f& reimu)
+    void reimure(const sf::Vector2f& reimu)
     {
         n_reimu = reimu;
+        modulize();
     }
 
 public:
@@ -33,60 +36,46 @@ public:
         return n_reimu;
     }
 
+    float get_abs()
+    {
+        return n_modu;
+    }
+
+    void recomp(const complex& comp)
+    {
+        complex temp{comp};
+
+        reimure(temp.get_vect());
+    }
+
     void adding(const complex& comp)
     {
         complex temp{comp};
 
-        n_reimu = n_reimu + temp.get_vect();
+        reimure(n_reimu + temp.get_vect());
     }
 
-    void subbing(const complex& comp)
+    void addinit()
     {
-        complex temp{comp};
-
-        n_reimu = n_reimu - temp.get_vect();
+        reimure(n_reimu + n_init);
     }
 
     void multing(const complex& comp)
     {
         complex temp{comp};
 
-        recomp(sf::Vector2f(get_vect().x*temp.get_vect().x - get_vect().y*temp.get_vect().y,
+        reimure(sf::Vector2f(get_vect().x*temp.get_vect().x - get_vect().y*temp.get_vect().y,
                             get_vect().x*temp.get_vect().y + get_vect().y*temp.get_vect().x));
     }
 
     complex(const sf::Vector2f& reimu)
-        : n_reimu(reimu), n_modu(modor(n_reimu))
+        : n_init(reimu), n_reimu(reimu), n_modu(modor(n_reimu))
     {
     }
 
     ~complex()
     {
-    }
-
-};
-
-complex adder(const complex& comp_1, const complex& comp_2)
-{
-    complex comp_3{comp_1};
-
-    complex comp_4{comp_2};
-
-    comp_3.adding(comp_4);
-
-    return comp_3;
-}
-
-complex subber(const complex& comp_1, const complex& comp_2)
-{
-    complex comp_3{comp_1};
-
-    complex comp_4{comp_2};
-
-    comp_3.subbing(comp_4);
-
-    return comp_3;
-}
+    }};
 
 complex multer(const complex& comp_1, const complex& comp_2)
 {
@@ -99,42 +88,82 @@ complex multer(const complex& comp_1, const complex& comp_2)
     return comp_3;
 }
 
+void fractalize(complex& comp)
+{
+    comp.recomp(multer(comp, comp));
+    comp.addinit();
+}
+
+void fractionize(sf::Vector2f& current, const sf::Vector2f init)
+{
+    current = sf::Vector2f {current.x*current.x -current.y*current.y + init.x,
+                      2*current.x*current.y + init.y};
+}
+
+float floater(const int inter)
+{
+    return static_cast<float>(inter);
+}
+
 int main()
 {
-    const float win_x{300.0f};
-    const float win_y{300.0f};
+    const float win_x{800.0f};
+    const float win_y{800.0f};
 
-    const int size_x{100};
-    const int size_y{100};
+    const int side{400};
+    const float sidef{1.0f*floater(side)};
 
-    const int poz_x{25};
-    const int poz_y{40};
+    const int size_x{2*side};
+    const int size_y{2*side};
 
     const int rgba{4};
     const int total{size_x*size_y*rgba};
 
-    const float pos_x{100.0f};
-    const float pos_y{100.0f};
+    const float pos_x{0.0f};
+    const float pos_y{0.0f};
 
     const std::string name{"Graphics Test"};
 
     const sf::Color black{0, 0, 0};
 
+    const int iters{10};
+
+    const float thresh{2.0f};
+
     sf::Uint8* pixels = new sf::Uint8[total];
 
-    for (int count{0}; count < size_x*size_y; ++count)
+    for (int count_x{0}; count_x < size_x; ++count_x)
     {
-        pixels[count*rgba] = 127;
-        pixels[count*rgba + 1] = 127;
-        pixels[count*rgba + 2] = 127;
-        pixels[count*rgba + 3] = 255;
+        for (int count_y{0}; count_y < size_y; ++count_y)
+        {
+            const int count_c{count_x*count_y};
+
+            int mandel{0};
+
+            // complex comp(sf::Vector2f(floater(count_x - side)/sidef, floater(count_y - side)/sidef));
+
+            const sf::Vector2f init{floater(count_x - side)/sidef, floater(count_y - side)/sidef};
+
+            sf::Vector2f current{init};
+
+            for (int count_1{0}; count_1 < iters; ++count_1)
+            {
+                // fractalize(comp);
+
+                fractionize(current, init);
+            }
+
+            if (modor(current) <= thresh)
+            {
+                mandel = 255;
+            }
+
+            pixels[count_c*rgba] = mandel;
+            pixels[count_c*rgba + 1] = mandel;
+            pixels[count_c*rgba + 2] = mandel;
+            pixels[count_c*rgba + 3] = 255;
+        }
     }
-
-
-    pixels[0] = 0;
-    pixels[1] = 255;
-    pixels[2] = 255;
-    pixels[3] = 255;
 
     sf::Texture texel;
 
